@@ -58,39 +58,46 @@ def gen_fare_combinations(
 
     # loop though each row (input) of base df
     for _, base_row in base_df.iterrows():
-        # extract Excel data into variables
-        rbd = base_row["booking_class"]
-        season = base_row["season"]
-        season_code = base_row["season_code"]
-        base_fare = base_row["base_fare"]
-        dest = base_row["dest"]
-        booking_class = base_row["booking_class"]
-        cabin = base_row["cabin"]
+        # unpack base_row data into variables
+        (
+            _,
+            dest,
+            booking_class,
+            season,
+            base_fare,
+            _,
+            cabin,
+            rt_only,
+            no_weekday_weekend,
+            season_code,
+        ) = base_row.to_list()
 
         # loop through each row (fare combination) of fare combination df
         for _, combination_row in fare_combination_df.iterrows():
-            # extract Excel data into variables
-            weekday = combination_row["weekday"]
-            ow = combination_row["oneway"]
-            ow_multiplier = combination_row["oneway_multiplier"]
-            ow_mapping = combination_row["oneway_mapping"]
-            weekend_surcharge = combination_row["weekend_surcharge"]
+            # unpack combination_row data into variables
+            (
+                weekday,
+                ow_multiplier,
+                weekend_surcharge,
+                ow,
+                ow_mapping,
+            ) = combination_row.to_list()
 
             # if input rbd allows for rt fares only, then skip ow fare combination
-            if base_row["rt_only"] and combination_row["oneway"]:
+            if rt_only and ow:
                 continue
 
             # if input rbd has no weekday/weekend distinction, then skip weekend fare combination
-            if base_row["no_weekday_weekend"] and not combination_row["weekday"]:
+            if no_weekday_weekend and not weekday:
                 continue
 
             # for input rbd w/o weekday/weekend distinction, leave farebasis blank for weekday/weekend
-            if base_row["no_weekday_weekend"]:
+            if no_weekday_weekend:
                 weekday = None
 
             # generate fare basis
             fare_basis = gen_fare_basis(
-                rbd=rbd, season=season_code, weekday=weekday, ow=ow
+                rbd=booking_class, season=season_code, weekday=weekday, ow=ow
             )
 
             # generate fare price
