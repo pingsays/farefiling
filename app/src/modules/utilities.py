@@ -58,6 +58,7 @@ def gen_fare_combinations(
 
     # loop though each row (input) of base df
     for _, base_row in base_df.iterrows():
+
         # unpack base_row data into variables
         (
             _,
@@ -74,6 +75,7 @@ def gen_fare_combinations(
 
         # loop through each row (fare combination) of fare combination df
         for _, combination_row in fare_combination_df.iterrows():
+
             # unpack combination_row data into variables
             (
                 weekday,
