@@ -1,8 +1,24 @@
+# ============== #
+# import modules #
+# ============== #
+# import public packages
 import pandas as pd
 from pandas import DataFrame
+import logging
+
+# import data models
 from ..datamodels.workpackage.workpackage import WorkPackageRecord
 
 
+# ============= #
+# set up logger #
+# ============= #
+logger = logging.getLogger(f"main.{__name__}")
+
+
+# ========= #
+# functions #
+# ========= #
 def excel_loader(excel_file: str) -> dict[str, DataFrame]:
     dfs = pd.read_excel(excel_file, sheet_name=None)
     return dfs
@@ -140,4 +156,6 @@ def split_df(df: DataFrame, split_by: dict[str, list]) -> dict:
 def output_to_excel(dfs: dict[str, DataFrame], filename) -> None:
     with pd.ExcelWriter(filename, engine="openpyxl", mode="w") as writer:
         for season, df in dfs.items():
+            logger.debug("season")
+            logger.debug(df)
             df.to_excel(writer, sheet_name=season, index=False)
