@@ -1,5 +1,6 @@
 # Custom User Ignores
 output.xlsx
+business_output.xlsx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
