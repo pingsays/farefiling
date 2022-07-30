@@ -13,7 +13,7 @@ from ..datamodels.workpackage.workpackage import WorkPackageRecord
 # ============= #
 # set up logger #
 # ============= #
-logger = logging.getLogger(f"main.{__name__}")
+logger = logging.getLogger(f"app.{__name__}")
 
 
 # ========= #
@@ -156,6 +156,6 @@ def split_df(df: DataFrame, split_by: dict[str, list]) -> dict:
 def output_to_excel(dfs: dict[str, DataFrame], filename) -> None:
     with pd.ExcelWriter(filename, engine="openpyxl", mode="w") as writer:
         for season, df in dfs.items():
-            logger.debug("season")
+            logger.debug(f"{season=}")
             logger.debug(df)
             df.to_excel(writer, sheet_name=season, index=False)

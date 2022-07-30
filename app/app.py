@@ -4,6 +4,7 @@
 # import public packages
 import pandas as pd
 import logging
+import toml
 
 # import utility functions
 from src.modules.utilities import (
@@ -19,11 +20,17 @@ from src.modules.utilities import (
 from src.datamodels import datatype_mapping
 
 
+# ======================= #
+# load application config #
+# ======================= #
+config = toml.load(r"./config.toml")
+
+
 # ============= #
 # set up logger #
 # ============= #
-logger = logging.getLogger("main")
-logger.setLevel("INFO")
+logger = logging.getLogger("app")
+logger.setLevel(config["logger"]["level"].upper())
 
 # create handler
 handler = logging.StreamHandler()
@@ -83,7 +90,6 @@ def main():
     # create new dataframe of output for further processing
     logger.info("Creating new dataframe for further processing..")
     df = pd.DataFrame(data=records)
-    logger.debug(f"{df}")
 
     # split dataframe by seasonality
     logger.info("Splitting dataframe by seasonality..")
