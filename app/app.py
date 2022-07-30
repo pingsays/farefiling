@@ -71,6 +71,7 @@ def main():
     # apply dtypes to dataframes
     logger.info("Applying datatype mapping to Excel input dataframes..")
     dfs = apply_dtype_mapping(dfs, datatype_mapping.dtype_mapping)
+    logger.debug(f"{[print(df.dtypes) for df in dfs.values()]}")
 
     # merge input and some config to generate base df
     logger.info("Merging input, cabin_mapping, and season_mapping dfs..")
