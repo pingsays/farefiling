@@ -5,6 +5,7 @@
 import pandas as pd
 from pandas import DataFrame
 import logging
+import sys
 
 # import data models
 from ..datamodels.workpackage.workpackage import WorkPackageRecord
@@ -20,6 +21,9 @@ logger = logging.getLogger(f"app.{__name__}")
 # functions #
 # ========= #
 def excel_loader(excel_file: str) -> dict[str, DataFrame]:
+    # set up logger with function name for more granular debugging
+    logger = _setup_logger()
+
     dfs = pd.read_excel(excel_file, sheet_name=None)
     return dfs
 
@@ -27,6 +31,9 @@ def excel_loader(excel_file: str) -> dict[str, DataFrame]:
 def apply_dtype_mapping(
     dfs: dict[str, DataFrame], mapping: dict[str, dict]
 ) -> dict[str, DataFrame]:
+    # set up logger with function name for more granular debugging
+    logger = _setup_logger()
+
     for sheet_name, dtypes in mapping.items():
         dfs[sheet_name] = dfs[sheet_name].astype(dtypes)
     return dfs
@@ -35,14 +42,25 @@ def apply_dtype_mapping(
 def merge_dfs(
     input_df: DataFrame, cabin_df: DataFrame, season_df: DataFrame
 ) -> DataFrame:
+    # set up logger with function name for more granular debugging
+    logger = _setup_logger()
+
     df = input_df.merge(cabin_df, on="booking_class")
     df = df.merge(season_df, on="season")
+
+    # reapply sorting as pandas merge will mess it up
+    df = df.sort_values(by=["sort"])
+    logger.debug(df)
+
     return df
 
 
 def gen_fare_basis(
     rbd: str, season: str, weekday: bool, ow: bool, country: str = "US"
 ) -> str:
+    # set up logger with function name for more granular debugging
+    logger = _setup_logger()
+
     if weekday is None:
         weekday_code = ""
     elif weekday:
@@ -62,6 +80,9 @@ def gen_fare_basis(
 def gen_fare_price(
     base_fare: int, ow_multiplier: float, weekend_surcharge: int
 ) -> float:
+    # set up logger with function name for more granular debugging
+    logger = _setup_logger()
+
     fare = base_fare * ow_multiplier + weekend_surcharge
     return fare
 
@@ -69,6 +90,9 @@ def gen_fare_price(
 def gen_fare_combinations(
     base_df: DataFrame, fare_combination_df: DataFrame
 ) -> DataFrame:
+
+    # set up logger with function name for more granular debugging
+    logger = _setup_logger()
 
     records = list()
 
@@ -95,9 +119,9 @@ def gen_fare_combinations(
             # unpack combination_row data into variables
             (
                 weekday,
+                ow,
                 ow_multiplier,
                 weekend_surcharge,
-                ow,
                 ow_mapping,
             ) = combination_row.to_list()
 
@@ -141,21 +165,38 @@ def gen_fare_combinations(
     return records
 
 
-def split_df(df: DataFrame, split_by: dict[str, list]) -> dict:
-    dfs = {}
-    for col, values in split_by.items():
-        for value in values:
-            s = df[df[col] == value]
-            s = s.drop(columns=["season", "season_code"])
-            s = s.reset_index(drop=True)
-            dfs[value] = s
+def split_df(
+    df: DataFrame, split_by: dict[str, str]
+) -> tuple[int, DataFrame]:  # !!! need to update typing for return value
+    # set up logger with function name for more granular debugging
+    # logger = logging.getLogger(f"app.{__name__}.{sys._getframe().f_code.co_name}")
+    logger = _setup_logger()
+    for col, value in split_by.items():
+        logger.debug(f"{col=}")
+        logger.debug(f"{value=}")
 
-    return dfs
+        df_grouped = df.groupby(df[col] == value)
+    return df_grouped
 
 
-def output_to_excel(dfs: dict[str, DataFrame], filename) -> None:
+def output_to_excel(filename: str, data_list: list[dict[str, DataFrame]]) -> None:
+    """
+    data:
+    [
+        {'L': DataFrame},
+        {'K1': DataFrame},
+        {'P': DataFrame}
+    ]
+    """
+    # set up logger with function name for more granular debugging
+    logger = _setup_logger()
     with pd.ExcelWriter(filename, engine="openpyxl", mode="w") as writer:
-        for season, df in dfs.items():
-            logger.debug(f"{season=}")
-            logger.debug(df)
-            df.to_excel(writer, sheet_name=season, index=False)
+        for data in data_list:
+            for season, df in data.items():
+                df.to_excel(writer, sheet_name=season, index=False)
+
+
+def _setup_logger():
+    # set up logger with function name for more granular debugging
+    # https://www.oreilly.com/library/view/python-cookbook/0596001673/ch14s08.html
+    return logging.getLogger(f"app.{__name__}.{sys._getframe(1).f_code.co_name}")

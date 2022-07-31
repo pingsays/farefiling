@@ -46,32 +46,33 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-# ============================== #
-# define global variables/config #
-# ============================== #
-input_file = r"gg_fare_filing.xlsx"
-output_file = r"output.xlsx"
-config_sheets = {"input", "cabin_mapping", "season_mapping", "fare_combination"}
-
-
 # ======== #
 #   main   #
 # ======== #
 def main():
+
     # import Excel
     logger.info("Importing Excel input file..")
-    excel_sheets = excel_loader(input_file)
+    excel_sheets = excel_loader(config["input"]["input_file"])
 
     # filter for config sheets only
     dfs = dict()
     for key, df in excel_sheets.items():
-        if key in config_sheets:
+        if key in config["input"]["input_sheets"]:
             dfs[key] = df
+
+    # choose excel or toml config
+    if config["app"]["use_excel_config"]:
+        excel_config = dfs["config"]
+        separate_business_output = excel_config["separate_business_output"].values
+    else:
+        separate_business_output = config["app"]["separate_business_class_output"]
 
     # apply dtypes to dataframes
     logger.info("Applying datatype mapping to Excel input dataframes..")
     dfs = apply_dtype_mapping(dfs, datatype_mapping.dtype_mapping)
-    logger.debug(f"{[print(df.dtypes) for df in dfs.values()]}")
+    # logger.debug(f"{[print(df.dtypes) for df in dfs.values()]}")
+    # logger.debug(dfs)
 
     # merge input and some config to generate base df
     logger.info("Merging input, cabin_mapping, and season_mapping dfs..")
@@ -81,31 +82,78 @@ def main():
         season_df=dfs["season_mapping"],
     )
     fare_combination_df = excel_sheets["fare_combination"]
+    # logger.debug(f"{base_df=}")
+    # logger.debug(f"{fare_combination_df=}")
 
     # generate all fare combinations
     logger.info("Generating fare combinations..")
     records = gen_fare_combinations(
         base_df=base_df, fare_combination_df=fare_combination_df
     )
-
-    # create new dataframe of output for further processing
-    logger.info("Creating new dataframe for further processing..")
     df = pd.DataFrame(data=records)
+    logger.debug(df)
 
-    # split dataframe by seasonality
-    logger.info("Splitting dataframe by seasonality..")
-    seasons = df["season"].unique()
-    split_by = {"season": seasons}
-    output_dfs = split_df(df, split_by=split_by)
+    # if need separate business class output
+    cabin_dfs = dict()
+    if separate_business_output:
+        split_by = {"cabin": "Business"}
 
-    logger.info(f"Writing output to Excel file [{output_file}]..")
-    try:
-        output_to_excel(dfs=output_dfs, filename=output_file)
-    except Exception as e:
-        logger.error(e)
-        raise e
+        logger.info("Splitting DataFrame by Business Class vs Non-Business Class..")
+        df_grouped = split_df(df=df, split_by=split_by)
+        groups = list(df_grouped.groups.keys())
 
-    logger.info("Run complete! :)")
+        # store business class fares
+        if True in groups:
+            cabin_dfs["business"] = df_grouped.get_group(True)
+
+        # store non-business class fares
+        if False in groups:
+            cabin_dfs["non-business"] = df_grouped.get_group(False)
+    else:
+        # if not separating business class, store everything in one category
+        cabin_dfs["all"] = df
+
+    # loop though each cabin split (business and non-business)
+    logger.info("Splitting DataFrame by Seasonality..")
+    output_dfs = dict()
+    for key, df in cabin_dfs.items():
+        categories = list()
+        season_dfs = list()
+
+        # create a list of seasons
+        seasons = df["season"].unique()
+
+        logger.info(f"List of seasons in [{key}] fares: {seasons}")
+        [categories.append({"season": season}) for season in seasons]
+        logger.debug(f"{key} categories: {categories}")
+
+        # loop through each category (season)
+        for category in categories:
+            # set season as category_name
+            category_name = list(category.values())[0]
+
+            # perform split on df
+            df_grouped = split_df(df, split_by=category)
+            groups = list(df_grouped.groups.keys())
+
+            # save True group to season_dfs
+            s = df_grouped.get_group(True)
+            s = s.drop(columns=["season", "season_code"])
+            season_dfs.append({category_name: s})
+
+            if False not in groups:
+                break
+
+        output_dfs[key] = season_dfs
+        # logger.debug(output_dfs)
+
+    if config["app"]["output_to_excel"]:
+        for key, data_list in output_dfs.items():
+            output_file = config["output"][key]["output_file"]
+            logger.info(f"Writing output to Excel file [{output_file}]..")
+            output_to_excel(filename=output_file, data_list=data_list)
+
+    logger.info("Run complete! :) xoxo <3")
 
 
 if __name__ == "__main__":
