@@ -61,10 +61,18 @@ def main():
         if key in config["input"]["input_sheets"]:
             dfs[key] = df
 
+    # choose excel or toml config
+    if config["app"]["use_excel_config"]:
+        excel_config = dfs["config"]
+        separate_business_output = excel_config["separate_business_output"].values
+    else:
+        separate_business_output = config["app"]["separate_business_class_output"]
+
     # apply dtypes to dataframes
     logger.info("Applying datatype mapping to Excel input dataframes..")
     dfs = apply_dtype_mapping(dfs, datatype_mapping.dtype_mapping)
     # logger.debug(f"{[print(df.dtypes) for df in dfs.values()]}")
+    # logger.debug(dfs)
 
     # merge input and some config to generate base df
     logger.info("Merging input, cabin_mapping, and season_mapping dfs..")
@@ -74,6 +82,8 @@ def main():
         season_df=dfs["season_mapping"],
     )
     fare_combination_df = excel_sheets["fare_combination"]
+    # logger.debug(f"{base_df=}")
+    # logger.debug(f"{fare_combination_df=}")
 
     # generate all fare combinations
     logger.info("Generating fare combinations..")
@@ -81,10 +91,11 @@ def main():
         base_df=base_df, fare_combination_df=fare_combination_df
     )
     df = pd.DataFrame(data=records)
+    logger.debug(df)
 
     # if need separate business class output
     cabin_dfs = dict()
-    if config["app"]["separate_business_class_output"]:
+    if separate_business_output:
         split_by = {"cabin": "Business"}
         df_grouped = split_df(df=df, split_by=split_by)
         groups = list(df_grouped.groups.keys())
@@ -129,6 +140,7 @@ def main():
                 break
 
         output_dfs[key] = season_dfs
+        # logger.debug(output_dfs)
 
     if config["app"]["output_to_excel"]:
         logger.info(f"Writing output to Excel file(s)..")

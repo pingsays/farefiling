@@ -4,8 +4,9 @@ title = "Application Config"
 level = "info"
 
 [app]
-separate_business_class_output = true
+separate_business_class_output = false
 output_to_excel = true
+use_excel_config = true
 
 [input]
 input_file = "gg_fare_filing.xlsx"
@@ -14,6 +15,7 @@ input_sheets = [
   "cabin_mapping",
   "season_mapping",
   "fare_combination",
+  "config",
 ]
 
 [output]

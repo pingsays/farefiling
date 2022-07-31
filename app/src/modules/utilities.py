@@ -47,6 +47,11 @@ def merge_dfs(
 
     df = input_df.merge(cabin_df, on="booking_class")
     df = df.merge(season_df, on="season")
+
+    # reapply sorting as pandas merge will mess it up
+    df = df.sort_values(by=["sort"])
+    logger.debug(df)
+
     return df
 
 
@@ -114,9 +119,9 @@ def gen_fare_combinations(
             # unpack combination_row data into variables
             (
                 weekday,
+                ow,
                 ow_multiplier,
                 weekend_surcharge,
-                ow,
                 ow_mapping,
             ) = combination_row.to_list()
 
