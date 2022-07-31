@@ -1,4 +1,3 @@
-from site import check_enableusersite
 from src.modules.utilities import gen_fare_basis
 
 
