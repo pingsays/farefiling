@@ -19,6 +19,7 @@ license = {text = "MIT"}
 [tool.pdm.dev-dependencies]
 test = [
     "pytest>=7.1.2",
+    "coverage>=6.4.2",
 ]
 
 [build-system]
