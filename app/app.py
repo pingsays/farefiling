@@ -97,6 +97,8 @@ def main():
     cabin_dfs = dict()
     if separate_business_output:
         split_by = {"cabin": "Business"}
+
+        logger.info("Splitting DataFrame by Business Class vs Non-Business Class..")
         df_grouped = split_df(df=df, split_by=split_by)
         groups = list(df_grouped.groups.keys())
 
@@ -111,14 +113,17 @@ def main():
         # if not separating business class, store everything in one category
         cabin_dfs["all"] = df
 
+    # loop though each cabin split (business and non-business)
+    logger.info("Splitting DataFrame by Seasonality..")
     output_dfs = dict()
-    # loop though each cabin split (business vs non-business)
     for key, df in cabin_dfs.items():
         categories = list()
         season_dfs = list()
 
         # create a list of seasons
         seasons = df["season"].unique()
+
+        logger.info(f"List of seasons in [{key}] fares: {seasons}")
         [categories.append({"season": season}) for season in seasons]
         logger.debug(f"{key} categories: {categories}")
 
@@ -143,12 +148,12 @@ def main():
         # logger.debug(output_dfs)
 
     if config["app"]["output_to_excel"]:
-        logger.info(f"Writing output to Excel file(s)..")
         for key, data_list in output_dfs.items():
             output_file = config["output"][key]["output_file"]
+            logger.info(f"Writing output to Excel file [{output_file}]..")
             output_to_excel(filename=output_file, data_list=data_list)
 
-    logger.info("Run complete! :)")
+    logger.info("Run complete! :) xoxo <3")
 
 
 if __name__ == "__main__":
