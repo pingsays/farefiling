@@ -162,7 +162,8 @@ def gen_fare_combinations(
             )
             records.append(record.dict())
 
-    return records
+    df = pd.DataFrame(data=records)
+    return df
 
 
 def split_df(

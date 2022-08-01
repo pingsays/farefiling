@@ -87,10 +87,7 @@ def main():
 
     # generate all fare combinations
     logger.info("Generating fare combinations..")
-    records = gen_fare_combinations(
-        base_df=base_df, fare_combination_df=fare_combination_df
-    )
-    df = pd.DataFrame(data=records)
+    df = gen_fare_combinations(base_df=base_df, fare_combination_df=fare_combination_df)
     logger.debug(df)
 
     # if need separate business class output
