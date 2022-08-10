@@ -1,8 +1,0 @@
-iniconfig/__init__.py,sha256=fa905ee4017fe9a030a350b1250f22ff326ae9e8dce88c47b5aeea936b4d2616,5208
-iniconfig/__init__.pyi,sha256=fb828e72dceadbca214664d9b2a947e9aca5c85aac34ac58aad93576d7b2a62e,1205
-iniconfig/py.typed,sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,0
-iniconfig-1.1.1.dist-info/LICENSE,sha256=2af680c39ef493fb82830356d1d3df1acb5a06033cba2dec7a19e21caa77a866,1061
-iniconfig-1.1.1.dist-info/METADATA,sha256=ff8fa814aa515ee66fe6bcdea527295d1c21aba0f3aac81b9c0e59a6031431cb,2405
-iniconfig-1.1.1.dist-info/WHEEL,sha256=00329ec9a1b2285e43c01344d2c444e69bd6f9b4a414c25f06e873677adc78fe,110
-iniconfig-1.1.1.dist-info/top_level.txt,sha256=eca7ccd1fba07654e88fd516ede9ca5e4d876002d00fca878b22ad8e14b380df,10
-iniconfig-1.1.1.dist-info/RECORD,,
