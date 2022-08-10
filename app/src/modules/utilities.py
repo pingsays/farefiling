@@ -4,6 +4,7 @@
 # import public packages
 import pandas as pd
 from pandas import DataFrame
+from pandas.core.groupby import DataFrameGroupBy
 import logging
 import sys
 
@@ -21,6 +22,9 @@ logger = logging.getLogger(f"app.{__name__}")
 # functions #
 # ========= #
 def excel_loader(excel_file: str) -> dict[str, DataFrame]:
+    """
+    Takes in an Excel file and load all sheets into a dictionary of DataFrames.
+    """
     # set up logger with function name for more granular debugging
     logger = _setup_logger()
 
@@ -31,6 +35,9 @@ def excel_loader(excel_file: str) -> dict[str, DataFrame]:
 def apply_dtype_mapping(
     dfs: dict[str, DataFrame], mapping: dict[str, dict]
 ) -> dict[str, DataFrame]:
+    """
+    Takes in the dictionary of DataFrames and a dictionary of data type mapping and change the dtypes of each DataFrame.
+    """
     # set up logger with function name for more granular debugging
     logger = _setup_logger()
 
@@ -42,6 +49,9 @@ def apply_dtype_mapping(
 def merge_dfs(
     input_df: DataFrame, cabin_df: DataFrame, season_df: DataFrame
 ) -> DataFrame:
+    """
+    Takes in the input DataFrame, the cabin mapping DataFrame, and season mapping DataFrame and join them together.
+    """
     # set up logger with function name for more granular debugging
     logger = _setup_logger()
 
@@ -58,6 +68,9 @@ def merge_dfs(
 def gen_fare_basis(
     rbd: str, season: str, weekday: bool, ow: bool, country: str = "US"
 ) -> str:
+    """
+    Takes in all the components needed to generate the fare basis and returns it.
+    """
     # set up logger with function name for more granular debugging
     logger = _setup_logger()
 
@@ -80,6 +93,9 @@ def gen_fare_basis(
 def gen_fare_price(
     base_fare: int, ow_multiplier: float, weekend_surcharge: int
 ) -> float:
+    """
+    Takes in the base fare, oneway multiplier, and weekend surcharge and return the calculated fare.
+    """
     # set up logger with function name for more granular debugging
     logger = _setup_logger()
 
@@ -90,7 +106,9 @@ def gen_fare_price(
 def gen_fare_combinations(
     base_df: DataFrame, fare_combination_df: DataFrame
 ) -> DataFrame:
-
+    """
+    Takes in the base DataFrame and fare combination DataFrame and generate all the different possible fare combinations.
+    """
     # set up logger with function name for more granular debugging
     logger = _setup_logger()
 
@@ -166,9 +184,10 @@ def gen_fare_combinations(
     return df
 
 
-def split_df(
-    df: DataFrame, split_by: dict[str, str]
-) -> tuple[int, DataFrame]:  # !!! need to update typing for return value
+def split_df(df: DataFrame, split_by: dict[str, str]) -> DataFrameGroupBy:
+    """
+    Takes in a DataFrame and a dictionary of {column_name: value} and split the DataFrame into groups.
+    """
     # set up logger with function name for more granular debugging
     # logger = logging.getLogger(f"app.{__name__}.{sys._getframe().f_code.co_name}")
     logger = _setup_logger()
@@ -182,12 +201,7 @@ def split_df(
 
 def output_to_excel(filename: str, data_list: list[dict[str, DataFrame]]) -> None:
     """
-    data:
-    [
-        {'L': DataFrame},
-        {'K1': DataFrame},
-        {'P': DataFrame}
-    ]
+    Write each DataFrame into its own sheet of the Excel workbook.
     """
     # set up logger with function name for more granular debugging
     logger = _setup_logger()
@@ -198,6 +212,9 @@ def output_to_excel(filename: str, data_list: list[dict[str, DataFrame]]) -> Non
 
 
 def _setup_logger():
+    """
+    Function to create a logger with the function's name for more granular logging.
+    """
     # set up logger with function name for more granular debugging
     # https://www.oreilly.com/library/view/python-cookbook/0596001673/ch14s08.html
     return logging.getLogger(f"app.{__name__}.{sys._getframe(1).f_code.co_name}")
