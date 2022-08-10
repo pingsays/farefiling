@@ -1,7 +1,18 @@
-# Custom User Ignores
+#=====================#
+# Custom User Ignores #
+#=====================#
+# Excel output files
 output.xlsx
 business_output.xlsx
 
+# pdm package manager
+.pdm.toml
+__pypackages__/
+
+
+#===================================#
+# GitHub Default Ignores for Python #
+#===================================#
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
