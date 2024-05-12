@@ -96,3 +96,7 @@ def main():
     group_dfs = {name: group for name, group in grouped}
 
     output_to_excel(excel_file=OUTPUT_FILE, data=group_dfs)
+
+
+if __name__ == "__main__":
+    main()
