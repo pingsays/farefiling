@@ -1,16 +1,10 @@
 import logging
 import sys
 from pathlib import Path
-from typing import Union
 
 import pandas as pd
 from pandas import DataFrame
 from pandas.core.groupby import DataFrameGroupBy
-
-from gg_fare_proposal.models.cabin_mapping import CabinMappings
-from gg_fare_proposal.models.fare_combination import FareCombinations
-from gg_fare_proposal.models.input import Inputs
-from gg_fare_proposal.models.season_mapping import SeasonMappings
 
 
 def excel_loader(path: Path) -> DataFrame:
@@ -106,6 +100,9 @@ def gen_fare_price(
 
 
 def gen_fare_combinations(base: DataFrame, fare_combination: DataFrame) -> DataFrame:
+    base = base.copy()
+    fare_combination = fare_combination.copy()
+
     base["key"] = 1
     fare_combination["key"] = 1
 
