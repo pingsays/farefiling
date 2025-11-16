@@ -1,5 +1,0 @@
-[run]
-omit =
-    __pypackages__/*
-    src/datamodels/*
-    test/*

@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from gg_fare_proposal.helper import (
+from farefiling.helper import (
     excel_loader,
     gen_fare_combinations,
     merge_dfs,
